@@ -73,11 +73,36 @@ def eps_greedy_pi(Q, s, epsilon=0.2):
 
 
 
-def MC_control(env, n_episodes=5000, epsilon=0.1, gamma=0.95, max_steps=100):
+def MC_control(env, n_episodes=5000, epsilon=0.1, gamma=0.95, max_steps=1000):
     '''
     '''   
 
     num_s = env.observation_space.n
     num_a = env.action_space.n
+
+    Q = np.zeros((num_s, num_a))
+    count = np.zeros((num_s, num_a))
+
+    for _ in range(n_episodes):
+        path, _ = run_episode(env, Q, epsilon=epsilon, gamma=gamma, max_steps=max_steps)
+        G = 0.0
+        # empty set to store visited states
+        visited = set()
+
+
+        for s, a, r in reversed(path):
+            G = r + gamma * G
+
+            if (s, a) in visited:
+                continue
+
+            visited.add((s, a))
+            count[s, a] += 1
+            # incremental mean
+            Q[s, a] += (G - Q[s, a]) / count[s, a]
+    
+    return Q
+
+
 
 
