@@ -67,13 +67,9 @@ def eps_greedy_pi(Q, s, epsilon=0.2):
 
     return a
 
-    
 
 
-
-
-
-def MC_control(env, n_episodes=5000, epsilon=0.1, gamma=0.95, max_steps=1000):
+def MC_control(env, num_episodes=5000, epsilon=0.1, gamma=0.95, max_steps=1000):
     '''
     '''   
 
@@ -83,21 +79,23 @@ def MC_control(env, n_episodes=5000, epsilon=0.1, gamma=0.95, max_steps=1000):
     Q = np.zeros((num_s, num_a))
     count = np.zeros((num_s, num_a))
 
-    for _ in range(n_episodes):
+    for _ in range(num_episodes):
         path, _ = run_episode(env, Q, epsilon=epsilon, gamma=gamma, max_steps=max_steps)
         G = 0.0
         # empty set to store visited states
         visited = set()
 
-
+        # returns depend on future rewards so iterating in reverse allows one pass to update G
         for s, a, r in reversed(path):
             G = r + gamma * G
 
+            # first visit only
             if (s, a) in visited:
                 continue
 
             visited.add((s, a))
             count[s, a] += 1
+
             # incremental mean
             Q[s, a] += (G - Q[s, a]) / count[s, a]
     
@@ -105,4 +103,60 @@ def MC_control(env, n_episodes=5000, epsilon=0.1, gamma=0.95, max_steps=1000):
 
 
 
+def SARSA(env, num_episodes=1000, epsilon=0.2, gamma=0.95, alpha=0.1, max_steps=1000):
+    '''
+    '''
 
+    num_s = env.observation_space.n
+    num_a = env.action_space.n
+
+    Q = np.zeros((num_s, num_a))
+
+    for _ in range(num_episodes):
+        # get first state and action and reset
+        s, _ = env.reset()
+        a = eps_greedy_pi(Q, s, epsilon)
+
+        # TD(0), so update after every step
+        for _ in range(max_steps):
+
+            s_next, r, terminated, truncated, _ = env.step(a)
+
+            if not (terminated or truncated):
+                a_next = eps_greedy_pi(Q, s=s_next, epsilon=epsilon)
+
+                Q[s, a] += alpha * (r + gamma*Q[s_next, a_next] - Q[s, a])
+
+            else:
+                # if terminal, no next state or action so AV func simplifies
+                Q[s, a] += alpha * (r - Q[s, a])
+                break
+
+            s, a = s_next, a_next
+
+    return Q
+
+
+
+def Q_learning(env, num_episodes=1000, epsilon=0.2, gamma=0.95, alpha=0.1, max_steps=1000):
+    '''
+    '''
+    num_s = env.observation_space.n
+    num_a = env.action_space.n
+    Q = np.zeros((num_s, num_a))
+
+    for _ in range(num_episodes):
+        s, _ = env.reset()
+        for _ in range(max_steps):
+            a = eps_greedy_pi(Q, s, epsilon=epsilon)
+
+            s_next, r, terminated, truncated, _ = env.step(a)
+
+            if not (terminated or truncated):
+                Q[s, a] += alpha * (r + gamma * np.max(Q[s_next]) - Q[s, a])
+                s = s_next
+            else:
+                Q[s, a] += alpha * (r - Q[s, a])
+                break
+
+    return Q
