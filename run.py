@@ -17,11 +17,11 @@ def main():
 
         # Plot eval return vs time steps
         series = {"MC":    
-                  (results["MC"]["steps"],    results["MC"]["returns"]),
+                  (results["MC"]["steps"], results["MC"]["returns"]),
                   "SARSA": 
                   (results["SARSA"]["steps"], results["SARSA"]["returns"]),
                   "Q":     
-                  (results["Q"]["steps"],     results["Q"]["returns"])}
+                  (results["Q"]["steps"], results["Q"]["returns"])}
 
         plot_eval(series, show=False, title=f"[{tag}] alpha={alpha} Evaluation Return — All Methods")
 
