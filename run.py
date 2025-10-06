@@ -10,8 +10,8 @@ def main():
     env_slip   = build_env(success_rate=1.0/3.0, is_slippery=True)
     env_noslip = build_env(success_rate=1.0/3.0, is_slippery=False)
 
-    for env, tag in [(env_slip,   "(slippery=True)"), (env_noslip, "(slippery=False)")]:
-        alpha = 0.025
+    for env, tag in [(env_slip, "(slippery=True)"), (env_noslip, "(slippery=False)")]:
+        alpha = 0.1
         # Train all algos with checkpoints for evaluation return plotting
         results = train_all_checkpoints(env, final_num_episodes=20000, alpha=alpha, gamma=gamma)
 
@@ -23,17 +23,17 @@ def main():
                   "Q":     
                   (results["Q"]["steps"], results["Q"]["returns"])}
 
-        plot_eval(series, show=False, title=f"[{tag}] alpha={alpha} Evaluation Return — All Methods")
+        plot_eval(series, show=False, title=f"Evaluation Returns, alpha={alpha} {tag}")
 
         # Policy plots
-        plot_policy(env, results["MC"]["Q"], title=f"Policy (MC Control) [{tag}]", show=False)
-        plot_policy(env, results["SARSA"]["Q"], title=f"Policy (SARSA) [{tag}]", show=False)
-        plot_policy(env, results["Q"]["Q"], title=f"Policy (Q-learning) [{tag}]", show=False)
+        plot_policy(env, results["MC"]["Q"], title=f"Policy (MC Control) {tag}", show=False)
+        plot_policy(env, results["SARSA"]["Q"], title=f"Policy (SARSA) {tag}", show=False)
+        plot_policy(env, results["Q"]["Q"], title=f"Policy (Q-learning) {tag}", show=False)
 
         # Heatmaps
-        plot_value(env, results["MC"]["Q"], title=f"V(s) (MC Control) [{tag}]", show=False)
-        plot_value(env, results["SARSA"]["Q"], title=f"V(s) (SARSA) [{tag}]", show=False)
-        plot_value(env, results["Q"]["Q"], title=f"V(s) (Q-learning) [{tag}]", show=False)
+        plot_value(env, results["MC"]["Q"], title=f"V(s) (MC Control) {tag}", show=False)
+        plot_value(env, results["SARSA"]["Q"], title=f"V(s) (SARSA) {tag}", show=False)
+        plot_value(env, results["Q"]["Q"], title=f"V(s) (Q-learning) {tag}", show=False)
 
     print("\nDone with all training and plotting.")
 
