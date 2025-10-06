@@ -4,8 +4,14 @@ import numpy as np
 import gymnasium as gym
 
 
-def build_env(gamma=0.95, success_rate=1.0/3.0, is_slippery=True):
+def build_env(success_rate=1.0/3.0, is_slippery=True):
     '''
+    Build FrozenLake environment with desired map, success rate, and slipperiness.
+
+    Inputs:
+    gamma: discount factor (not used in env but for reference)
+    success_rate: probability of intended action being taken
+    is_slippery: if True, the environment is stochastic
     '''
     env = gym.make(
             'FrozenLake-v1',
